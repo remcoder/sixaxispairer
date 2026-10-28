@@ -28,6 +28,7 @@
 
 static const unsigned short VENDOR    = 0x054c;
 static const unsigned short PRODUCT[] = {
+    0x09cc, /* dual shock 4 */
     0x0268, /* sixaxis */
     0x042f  /* move motion */
 };
@@ -111,6 +112,10 @@ static void show_pairing(hid_device *dev)
     ret = hid_get_feature_report(dev, buf, sizeof(buf));
     if (ret < 8) {
         printf("Read error\n");
+        const wchar_t *werr = hid_error(dev);
+        char err[256];
+        wcstombs(err, werr, sizeof(err));
+        fprintf(stderr, "Error opening device: %s\n", err);
         return;
     }
     printf("%02x:%02x:%02x:%02x:%02x:%02x\n", buf[2], buf[3], buf[4], buf[5], buf[6], buf[7]);
@@ -131,7 +136,7 @@ int main(int argc, char **argv)
         dev = hid_open(VENDOR, PRODUCT[i], NULL);
         if (dev != NULL) {
             break;
-        }
+        } 
     }
     if (dev == NULL) {
         fprintf(stderr, "Could not find SixAxis controller\n");
